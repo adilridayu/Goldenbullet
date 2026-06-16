@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden Bullet Method</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --gold:    #C9A84C;
+    --gold-lt: #F0CC6A;
+    --gold-dk: #8A6820;
+    --ink:     #0B0D0F;
+    --ink-2:   #141618;
+    --ink-3:   #1E2124;
+    --ink-4:   #2C3036;
+    --silver:  #8B95A1;
+    --text:    #D4D8DD;
+    --green:   #2ECC7A;
+    --red:     #E84545;
+    --blue:    #4A9EFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--ink-2) 0%, #0D0F11 100%);
+    border-bottom: 1px solid var(--gold-dk);
+    padding: 56px 40px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 120%, rgba(201,168,76,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .bullet-icon {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 18px rgba(201,168,76,.5));
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { filter: drop-shadow(0 0 18px rgba(201,168,76,.5)); }
+    50%      { filter: drop-shadow(0 0 32px rgba(240,204,106,.7)); }
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: 6px;
+    color: var(--gold-lt);
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  header p.sub {
+    color: var(--silver);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    display: flex;
+    gap: 2px;
+    background: var(--ink-2);
+    border-bottom: 1px solid var(--ink-4);
+    overflow-x: auto;
+    padding: 0 24px;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav button {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--silver);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 16px 20px 13px;
+    cursor: pointer;
+    transition: color .2s, border-color .2s;
+    white-space: nowrap;
+  }
+  nav button:hover  { color: var(--text); }
+  nav button.active { color: var(--gold-lt); border-bottom-color: var(--gold); }
+
+  /* ── SECTIONS ── */
+  section { display: none; max-width: 900px; margin: 0 auto; padding: 40px 24px 60px; }
+  section.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--ink-2);
+    border: 1px solid var(--ink-4);
+    border-radius: 12px;
+    padding: 28px 28px;
+    margin-bottom: 20px;
+  }
+  .card.gold-border { border-color: var(--gold-dk); }
+  .card h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--gold-lt);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h2 .icon { font-size: 20px; }
+  .card h3 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 20px 0 10px;
+  }
+  .card p  { color: #A8B0BB; margin-bottom: 10px; font-size: 14px; }
+  .card ul { padding-left: 18px; }
+  .card ul li { color: #A8B0BB; font-size: 14px; margin-bottom: 6px; }
+  .card ul li strong { color: var(--text); }
+
+  /* ── RULE GRID ── */
+  .rule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .rule-box {
+    background: var(--ink-3);
+    border: 1px solid var(--ink-4);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .rule-box .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold-dk);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .rule-box .label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .rule-box p { font-size: 13px; color: #8B95A1; }
+
+  /* ── SETUP CHECKLIST ── */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--ink-4);
+    font-size: 14px;
+    color: #A8B0BB;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li .dot {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .dot.buy  { background: rgba(46,204,122,.15); color: var(--green); }
+  .dot.sell { background: rgba(232,69,69,.15);  color: var(--red); }
+  .dot.info { background: rgba(74,158,255,.15); color: var(--blue); }
+  .dot.gold { background: rgba(201,168,76,.15); color: var(--gold); }
+
+  /* ── ENTRY FLOW ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 8px;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    width: 2px;
+    height: calc(100% - 4px);
+    background: var(--ink-4);
+  }
+  .flow-circle {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid var(--gold-dk);
+    background: var(--ink-3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--gold-lt);
+    z-index: 1;
+  }
+  .flow-body { padding: 8px 0 28px; }
+  .flow-body strong { font-size: 14px; color: var(--text); display: block; margin-bottom: 4px; }
+  .flow-body p { font-size: 13px; color: #8B95A1; }
+
+  /* ── TRADE EXAMPLE ── */
+  .trade-box {
+    background: var(--ink-3);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 10px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .trade-box .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--ink-4); }
+  .trade-box .row:last-child { border-bottom: none; }
+  .trade-box .row .k { color: var(--silver); }
+  .trade-box .row .v { font-weight: 600; }
+  .trade-box .row .v.g { color: var(--green); }
+  .trade-box .row .v.r { color: var(--red); }
+  .trade-box .row .v.y { color: var(--gold-lt); }
+
+  /* ── RR METER ── */
+  .rr-bar {
+    margin-top: 16px;
+    height: 10px;
+    background: var(--ink-4);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .rr-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red) 0%, var(--gold) 40%, var(--green) 100%);
+    border-radius: 99px;
+    transition: width .6s ease;
+  }
+  .rr-label { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--silver); }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 2px;
+  }
+  .badge.g { background: rgba(46,204,122,.15); color: var(--green); border: 1px solid rgba(46,204,122,.3); }
+  .badge.r { background: rgba(232,69,69,.15);  color: var(--red);   border: 1px solid rgba(232,69,69,.3); }
+  .badge.y { background: rgba(201,168,76,.15); color: var(--gold);  border: 1px solid rgba(201,168,76,.3); }
+  .badge.b { background: rgba(74,158,255,.15); color: var(--blue);  border: 1px solid rgba(74,158,255,.3); }
+
+  /* ── RISK CALC ── */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .calc-grid label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--silver); margin-bottom: 6px; }
+  .calc-grid input {
+    width: 100%;
+    background: var(--ink-4);
+    border: 1px solid #3A4048;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .calc-grid input:focus { border-color: var(--gold-dk); }
+  .calc-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--gold-dk), var(--gold));
+    border: none;
+    border-radius: 8px;
+    color: var(--ink);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    padding: 14px;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    margin-bottom: 16px;
+  }
+  .calc-btn:hover  { opacity: .9; }
+  .calc-btn:active { transform: scale(.98); }
+  .calc-result { display: none; }
+  .calc-result.show { display: block; }
+  .result-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: var(--gold-lt);
+    line-height: 1;
+  }
+  .result-sub { font-size: 12px; color: var(--silver); letter-spacing: 1px; }
+
+  /* ── TIMEFRAME PILLS ── */
+  .tf-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .tf-pill {
+    padding: 6px 16px;
+    border-radius: 99px;
+    border: 1px solid var(--ink-4);
+    background: var(--ink-3);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--silver);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tf-pill:hover,
+  .tf-pill.active { background: rgba(201,168,76,.15); border-color: var(--gold-dk); color: var(--gold-lt); }
+
+  /* ── RESP ── */
+  @media (max-width: 600px) {
+    header { padding: 40px 20px 36px; }
+    .calc-grid { grid-template-columns: 1fr; }
+    .rule-grid  { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="bullet-icon">🎯</span>
+  <h1>Golden Bullet Method</h1>
+  <p>Crypto &amp; CFD · High-Probability Entry System</p>
+</header>
+
+<nav>
+  <button class="active" onclick="show('overview',this)">Overview</button>
+  <button onclick="show('setup',this)">Setup &amp; Indikator</button>
+  <button onclick="show('entry',this)">Entry Rules</button>
+  <button onclick="show('management',this)">Risk &amp; Money Mgmt</button>
+  <button onclick="show('calculator',this)">Kalkulator Risiko</button>
+  <button onclick="show('pairs',this)">Pair &amp; Sesi</button>
+</nav>
+
+<!-- ── OVERVIEW ── -->
+<section id="overview" class="active">
+
+  <div class="card gold-border">
+    <h2><span class="icon">🔫</span> Apa itu Golden Bullet?</h2>
+    <p>Golden Bullet adalah metode trading presisi tinggi yang menggabungkan <strong>analisis struktur pasar (market structure)</strong>, <strong>order block / supply-demand</strong>, dan <strong>konfluensi multi-timeframe</strong>. Filosofinya: <em>satu entry terbaik lebih baik dari sepuluh entry asal-asalan</em>.</p>
+    <p>Metode ini populer di komunitas Smart Money Concept (SMC) dan cocok diterapkan di <span class="badge y">Crypto</span> <span class="badge b">Forex CFD</span> <span class="badge g">Indeks CFD</span> <span class="badge r">Komoditas CFD</span>.</p>
+  </div>
+
+  <div class="rule-grid">
+    <div class="rule-box">
+      <div class="num">01</div>
+      <div class="label">Presisi</div>
+      <p>Entry hanya di zona high-probability — order block atau FVG yang sudah teruji</p>
+    </div>
+    <div class="rule-box">
+      <div class="num">02</div>
+      <div class="label">Konfluensi</div>
+      <p>Minimal 3 faktor harus sejajar sebelum trigger entry</p>
+    </div>
+    <div class="rule-box">
+      <div class="num">03</div>
+      <div class="label">Manajemen</div>
+      <p>Risk per trade ≤ 1–2% akun. RR minimum 1:2, idealnya 1:3</p>
+    </div>
+    <div class="rule-box">
+      <div class="num">04</div>
+      <div class="label">Disiplin</div>
+      <p>Jika setup tidak sempurna, skip. Tidak ada setup = no trade</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📊</span> Statistik Ekspektasi</h2>
+    <p>Dengan winrate 45–55% dan RR rata-rata 1:2.5, ekspektasi matematis per 100 trade:</p>
+    <div class="trade-box">
+      <div class="row"><span class="k">Win Rate</span><span class="v y">50%</span></div>
+      <div class="row"><span class="k">Avg Risk-Reward</span><span class="v y">1 : 2.5</span></div>
+      <div class="row"><span class="k">Profit per 100 trade (risk 1%)</span><span class="v g">+75%</span></div>
+      <div class="row"><span class="k">Max drawdown (streak 5 loss)</span><span class="v r">−5%</span></div>
+    </div>
+    <div class="rr-bar"><div class="rr-fill" style="width:72%"></div></div>
+    <div class="rr-label"><span>Breakeven (1:1)</span><span>Target (1:2.5)</span><span>Exceptional (1:4)</span></div>
+  </div>
+
+</section>
+
+<!-- ── SETUP ── -->
+<section id="setup">
+
+  <div class="card">
+    <h2><span class="icon">📐</span> Struktur Multi-Timeframe</h2>
+    <p>Golden Bullet menggunakan <strong>Top-Down Analysis</strong>: dari besar ke kecil.</p>
+    <div class="tf-row">
+      <div class="tf-pill active" id="tf1" onclick="toggleTF(this)">Weekly (W1)</div>
+      <div class="tf-pill" id="tf2" onclick="toggleTF(this)">Daily (D1)</div>
+      <div class="tf-pill" id="tf3" onclick="toggleTF(this)">4H</div>
+      <div class="tf-pill" id="tf4" onclick="toggleTF(this)">1H</div>
+      <div class="tf-pill" id="tf5" onclick="toggleTF(this)">15M</div>
+      <div class="tf-pill" id="tf6" onclick="toggleTF(this)">5M</div>
+    </div>
+    <div class="card" style="margin-top:16px;background:var(--ink-3)">
+      <p id="tf-desc" style="margin:0;font-size:14px"></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🛠</span> Indikator Wajib</h2>
+    <h3>Tanpa Indikator (Price Action Murni)</h3>
+    <ul>
+      <li><strong>Swing High / Swing Low</strong> — identifikasi struktur BOS &amp; CHoCH</li>
+      <li><strong>Order Block (OB)</strong> — candle institutional sebelum impulse move</li>
+      <li><strong>Fair Value Gap (FVG / Imbalance)</strong> — area 3-candle gap yang belum ter-fill</li>
+      <li><strong>Supply &amp; Demand Zone</strong> — konfirmasi area reversal / continuation</li>
+    </ul>
+    <h3>Indikator Opsional (Filter)</h3>
+    <ul>
+      <li><strong>EMA 50 &amp; 200</strong> — filter bias bullish / bearish</li>
+      <li><strong>Volume / CVD</strong> — konfirmasi minat institusional</li>
+      <li><strong>RSI (14)</strong> — filter overbought/oversold di entry TF</li>
+      <li><strong>ATR (14)</strong> — menghitung volatilitas untuk sizing SL</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🏗</span> Konsep Kunci: BOS &amp; CHoCH</h2>
+    <ul>
+      <li><strong>BOS (Break of Structure)</strong> — konfirmasi tren berlanjut. Harga menembus swing high/low searah tren.</li>
+      <li><strong>CHoCH (Change of Character)</strong> — sinyal potensi reversal. Harga menembus swing high/low berlawanan tren utama.</li>
+      <li><strong>Premium Zone</strong> — area di atas 50% range (zona jual institusional)</li>
+      <li><strong>Discount Zone</strong> — area di bawah 50% range (zona beli institusional)</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ── ENTRY ── -->
+<section id="entry">
+
+  <div class="card gold-border">
+    <h2><span class="icon">🎯</span> 5 Syarat Entry Golden Bullet</h2>
+    <p>Semua syarat harus terpenuhi. Kurang satu = skip trade.</p>
+    <ul class="checklist">
+      <li><div class="dot gold">1</div><span><strong>Bias HTF Jelas</strong> — D1/W1 menunjukkan tren atau range yang terdefinisi dengan BOS terakhir</span></li>
+      <li><div class="dot info">2</div><span><strong>Liquidity Sweep</strong> — Harga telah mengambil likuiditas (equal highs/lows, BSL/SSL) sebelum reversal</span></li>
+      <li><div class="dot gold">3</div><span><strong>CHoCH / MSS terbentuk</strong> — Konfirmasi perubahan arah di TF menengah (1H/4H)</span></li>
+      <li><div class="dot buy">4</div><span><strong>Entry di OB / FVG</strong> — Entry tepat di order block atau fair value gap yang relevan</span></li>
+      <li><div class="dot sell">5</div><span><strong>SL di luar struktur</strong> — Stop loss ditempatkan di luar high/low terdekat yang valid</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🔄</span> Alur Entry Step-by-Step</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-circle">1</div>
+        <div class="flow-body">
+          <strong>Analisis Bias HTF (D1 / W1)</strong>
+          <p>Tentukan arah utama: bullish atau bearish? Tandai key level: swing high/low mayor, supply/demand mayor.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-circle">2</div>
+        <div class="flow-body">
+          <strong>Tunggu Liquidity Grab (4H / 1H)</strong>
+          <p>Harga "memancing" stop loss trader ritel di atas/bawah equal highs/lows. Sinyal: wick panjang melewati level, lalu close kembali.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-circle">3</div>
+        <div class="flow-body">
+          <strong>Konfirmasi CHoCH (1H / 15M)</strong>
+          <p>Setelah liquidity sweep, pastikan ada candle yang menembus swing berlawanan → Change of Character terkonfirmasi.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-circle">4</div>
+        <div class="flow-body">
+          <strong>Identifikasi Order Block / FVG (15M / 5M)</strong>
+          <p>Cari OB terdekat searah bias. OB bullish: candle bearish terakhir sebelum impulse naik. OB bearish: candle bullish terakhir sebelum impulse turun.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-circle">5</div>
+        <div class="flow-body">
+          <strong>Set Entry, SL, TP</strong>
+          <p><strong>Entry:</strong> Limit order di tengah OB / top FVG (bullish) atau bottom FVG (bearish).<br>
+          <strong>SL:</strong> 5–10 pip/point di bawah low OB (buy) atau atas OB (sell).<br>
+          <strong>TP1:</strong> Swing high/low terdekat. <strong>TP2:</strong> Target HTF berikutnya.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📋</span> Contoh Trade: BTCUSDT</h2>
+    <div class="trade-box">
+      <div class="row"><span class="k">Asset</span><span class="v y">BTCUSDT Futures</span></div>
+      <div class="row"><span class="k">Bias HTF (D1)</span><span class="v g">BULLISH — BOS terakhir ke atas</span></div>
+      <div class="row"><span class="k">Liquidity Grab</span><span class="v y">Equal Lows H4 tersapu → Wick panjang</span></div>
+      <div class="row"><span class="k">CHoCH</span><span class="v g">H1 menembus swing high sebelumnya</span></div>
+      <div class="row"><span class="k">Entry</span><span class="v y">Limit di OB 15M: $65,200</span></div>
+      <div class="row"><span class="k">Stop Loss</span><span class="v r">$64,800 (−$400 / −0.6%)</span></div>
+      <div class="row"><span class="k">TP1</span><span class="v g">$66,400 (+$1,200 / RR 1:3)</span></div>
+      <div class="row"><span class="k">TP2</span><span class="v g">$67,800 (+$2,600 / RR 1:6.5)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">❌</span> Setup yang HARUS Di-Skip</h2>
+    <ul>
+      <li>Harga sudah terlalu jauh dari OB (lebih dari 1 ATR)</li>
+      <li>CHoCH tidak terbentuk — jangan anticipate reversal</li>
+      <li>News besar dalam 30 menit (FOMC, CPI, dll.)</li>
+      <li>Spread tidak normal / likuiditas rendah (weekend crypto, pre-market CFD)</li>
+      <li>3 loss berturut-turut hari ini → berhenti trading hari itu</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ── MANAGEMENT ── -->
+<section id="management">
+
+  <div class="card gold-border">
+    <h2><span class="icon">🛡</span> Aturan Manajemen Risiko</h2>
+    <div class="rule-grid">
+      <div class="rule-box">
+        <div class="num">1%</div>
+        <div class="label">Risk per Trade</div>
+        <p>Maksimal 1% dari total akun per satu trade. Aggressive max 2%.</p>
+      </div>
+      <div class="rule-box">
+        <div class="num">1:2</div>
+        <div class="label">RR Minimum</div>
+        <p>Jangan entry jika RR kurang dari 1:2. Target ideal 1:3 atau lebih.</p>
+      </div>
+      <div class="rule-box">
+        <div class="num">3</div>
+        <div class="label">Max Loss/Hari</div>
+        <p>Jika 3 trade loss dalam sehari, stop. Evaluasi keesokan harinya.</p>
+      </div>
+      <div class="rule-box">
+        <div class="num">5%</div>
+        <div class="label">Max Drawdown/Bulan</div>
+        <p>Jika drawdown bulanan mencapai 5%, stop trading sampai bulan berikutnya.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📏</span> Position Sizing Formula</h2>
+    <div class="trade-box">
+      <div class="row"><span class="k">Formula</span><span class="v y">Lot = (Akun × Risk%) ÷ (SL pips × Nilai per pip)</span></div>
+      <div class="row"><span class="k">Contoh Akun</span><span class="v">$10,000</span></div>
+      <div class="row"><span class="k">Risk %</span><span class="v">1% = $100</span></div>
+      <div class="row"><span class="k">SL</span><span class="v">50 pips</span></div>
+      <div class="row"><span class="k">Nilai per pip (0.1 lot)</span><span class="v">$1/pip</span></div>
+      <div class="row"><span class="k">Lot Size</span><span class="v g">$100 ÷ (50 × $1) = 2 lot (0.02 standard)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🚀</span> Strategi Partial TP &amp; Trailing</h2>
+    <ul class="checklist">
+      <li><div class="dot g">TP</div><span><strong>TP1 (50% posisi)</strong> — Close di target pertama. Pindah SL ke breakeven untuk sisa posisi.</span></li>
+      <li><div class="dot g">TP</div><span><strong>TP2 (30% posisi)</strong> — Close di swing high/low mayor berikutnya.</span></li>
+      <li><div class="dot gold">TR</div><span><strong>Trailing (20% posisi)</strong> — Biarkan berjalan dengan trailing stop, tangkap momentum besar.</span></li>
+      <li><div class="dot info">BE</div><span><strong>Breakeven Rule</strong> — Setelah harga bergerak 1 × risk, pindah SL ke entry price (no loss trade).</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">📓</span> Trading Journal Wajib</h2>
+    <p>Catat setiap trade dengan field berikut untuk evaluasi performa:</p>
+    <ul>
+      <li>Tanggal &amp; waktu entry</li>
+      <li>Asset, arah (long/short), TF</li>
+      <li>Alasan entry (konfluensi yang terpenuhi)</li>
+      <li>Entry, SL, TP1, TP2</li>
+      <li>Hasil (profit/loss dalam % akun)</li>
+      <li>Screenshot chart saat entry &amp; exit</li>
+      <li>Catatan evaluasi: apa yang benar/salah</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ── CALCULATOR ── -->
+<section id="calculator">
+
+  <div class="card gold-border">
+    <h2><span class="icon">🧮</span> Kalkulator Risiko Golden Bullet</h2>
+    <p>Hitung ukuran posisi optimal sebelum entry.</p>
+
+    <div class="calc-grid">
+      <div>
+        <label>Saldo Akun ($)</label>
+        <input type="number" id="balance" value="10000" placeholder="10000">
+      </div>
+      <div>
+        <label>Risk per Trade (%)</label>
+        <input type="number" id="riskpct" value="1" step="0.1" min="0.1" max="5" placeholder="1">
+      </div>
+      <div>
+        <label>Harga Entry</label>
+        <input type="number" id="entryPrice" value="65000" placeholder="65000">
+      </div>
+      <div>
+        <label>Harga Stop Loss</label>
+        <input type="number" id="slPrice" value="64500" placeholder="64500">
+      </div>
+      <div>
+        <label>Harga TP1</label>
+        <input type="number" id="tp1Price" value="66500" placeholder="66500">
+      </div>
+      <div>
+        <label>Harga TP2</label>
+        <input type="number" id="tp2Price" value="67500" placeholder="67500">
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">🎯 HITUNG POSISI</button>
+
+    <div class="calc-result" id="calcResult">
+      <div class="rule-grid">
+        <div class="rule-box">
+          <div class="result-val" id="res-risk">$0</div>
+          <div class="result-sub">NOMINAL RISIKO</div>
+        </div>
+        <div class="rule-box">
+          <div class="result-val" id="res-qty">0</div>
+          <div class="result-sub">UKURAN POSISI (UNIT)</div>
+        </div>
+        <div class="rule-box">
+          <div class="result-val" id="res-rr">0</div>
+          <div class="result-sub">RISK-REWARD (TP1)</div>
+        </div>
+        <div class="rule-box">
+          <div class="result-val" id="res-profit">$0</div>
+          <div class="result-sub">PROFIT ESTIMASI (TP1)</div>
+        </div>
+      </div>
+      <div class="trade-box" style="margin-top:12px">
+        <div class="row"><span class="k">SL Distance</span><span class="v r" id="res-sl-dist">—</span></div>
+        <div class="row"><span class="k">TP1 Distance</span><span class="v g" id="res-tp1-dist">—</span></div>
+        <div class="row"><span class="k">TP2 Distance</span><span class="v g" id="res-tp2-dist">—</span></div>
+        <div class="row"><span class="k">Profit TP2</span><span class="v g" id="res-profit2">—</span></div>
+        <div class="row"><span class="k">Status Setup</span><span class="v" id="res-status">—</span></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── PAIRS ── -->
+<section id="pairs">
+
+  <div class="card">
+    <h2><span class="icon">🪙</span> Crypto Terbaik untuk Golden Bullet</h2>
+    <p>Pilih pair dengan volume tinggi dan volatilitas yang cukup untuk RR 1:2+</p>
+    <ul class="checklist">
+      <li><div class="dot gold">★</div><span><strong>BTCUSDT</strong> — Paling liquid, struktur paling bersih, spread rendah. Cocok untuk semua level.</span></li>
+      <li><div class="dot gold">★</div><span><strong>ETHUSDT</strong> — Volume tinggi, mengikuti BTC tapi dengan momentum lebih agresif.</span></li>
+      <li><div class="dot info">●</div><span><strong>SOLUSDT</strong> — Volatilitas tinggi, potensi RR besar, tapi noise lebih banyak di TF rendah.</span></li>
+      <li><div class="dot info">●</div><span><strong>BNBUSDT</strong> — Struktur cukup baik, cocok sebagai alternatif saat BTC/ETH ranging.</span></li>
+      <li><div class="dot sell">▲</div><span><strong>Altcoin lainnya</strong> — Hanya trading jika BTC sedang dalam tren kuat dan dominance mendukung.</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">💱</span> CFD Terbaik untuk Golden Bullet</h2>
+    <ul class="checklist">
+      <li><div class="dot gold">★</div><span><strong>XAUUSD (Gold)</strong> — Raja volatilitas CFD. Struktur OB sangat respek. Best pair untuk Golden Bullet.</span></li>
+      <li><div class="dot gold">★</div><span><strong>EURUSD</strong> — Spread paling rendah, struktur paling clean di antara forex major.</span></div></li>
+      <li><div class="dot gold">★</div><span><strong>NAS100 / US30</strong> — Indeks AS dengan volume tinggi, tren kuat, OB sangat reliable saat sesi NY.</span></li>
+      <li><div class="dot info">●</div><span><strong>GBPUSD</strong> — Volatilitas lebih tinggi dari EUR, cocok untuk target TP lebih besar.</span></li>
+      <li><div class="dot info">●</div><span><strong>USDJPY</strong> — Bagus saat sesi Tokyo &amp; NY, mengikuti risk sentiment global.</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">🕐</span> Sesi Trading Optimal</h2>
+    <div class="rule-grid">
+      <div class="rule-box">
+        <div class="label">Sesi London</div>
+        <div class="num" style="font-size:22px">14:00–17:00</div>
+        <p style="font-size:12px">WIB. Volatilitas tinggi, liquidity grab sering terjadi di awal sesi. Terbaik untuk Forex &amp; Gold.</p>
+      </div>
+      <div class="rule-box">
+        <div class="label">Sesi New York</div>
+        <div class="num" style="font-size:22px">19:00–22:00</div>
+        <p style="font-size:12px">WIB. Overlap London-NY: volume tertinggi sepanjang hari. Terbaik untuk semua instrument.</p>
+      </div>
+      <div class="rule-box">
+        <div class="label">Crypto</div>
+        <div class="num" style="font-size:22px">24/7</div>
+        <p style="font-size:12px">Tapi fokus di sesi NY &amp; Asia open. Hindari weekend dan jam 02:00–08:00 WIB (volume rendah).</p>
+      </div>
+      <div class="rule-box">
+        <div class="label">Hindari</div>
+        <div class="num" style="font-size:22px">News</div>
+        <p style="font-size:12px">Keluar atau pasang SL ketat 30 menit sebelum High Impact News (FOMC, NFP, CPI).</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  // ── TABS ──
+  function show(id, btn) {
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── TIMEFRAME DESCRIPTIONS ──
+  const tfDesc = {
+    tf1: '📌 <strong>Weekly (W1) — Bias Maker:</strong> Tentukan arah besar pasar. Tandai swing high/low tahunan, key level HTF, dan tren mayor. Jangan pernah trade berlawanan tren W1.',
+    tf2: '📌 <strong>Daily (D1) — Struktur Utama:</strong> Cari BOS dan CHoCH mayor. Tandai supply/demand zone penting. Ini adalah "peta jalan" trading minggu ini.',
+    tf3: '📌 <strong>4H — Konfirmasi Tren:</strong> Konfirmasi bias D1. Cari OB dan FVG besar. Identifikasi liquidity pool (equal highs/lows) yang kemungkinan akan di-sweep.',
+    tf4: '📌 <strong>1H — Entry Zone:</strong> Konfirmasi CHoCH setelah liquidity sweep. Identifikasi OB entry yang lebih presisi. Ini adalah timeframe utama untuk menunggu setup.',
+    tf5: '📌 <strong>15M — Refinement:</strong> Temukan OB yang lebih kecil di dalam OB 1H. Lihat FVG (imbalance) sebagai area entry yang lebih tepat. Pasang limit order di sini.',
+    tf6: '📌 <strong>5M — Precision Entry:</strong> Untuk scalper atau ketika ingin entry sangat presisi. Konfirmasi reaksi harga saat menyentuh OB/FVG sebelum entry.',
+  };
+  function toggleTF(el) {
+    document.querySelectorAll('.tf-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tf-desc').innerHTML = tfDesc[el.id] || '';
+  }
+  // init
+  document.getElementById('tf-desc').innerHTML = tfDesc['tf1'];
+
+  // ── CALCULATOR ──
+  function calculate() {
+    const balance   = parseFloat(document.getElementById('balance').value)    || 0;
+    const riskPct   = parseFloat(document.getElementById('riskpct').value)    || 1;
+    const entry     = parseFloat(document.getElementById('entryPrice').value) || 0;
+    const sl        = parseFloat(document.getElementById('slPrice').value)    || 0;
+    const tp1       = parseFloat(document.getElementById('tp1Price').value)   || 0;
+    const tp2       = parseFloat(document.getElementById('tp2Price').value)   || 0;
+
+    if (!balance || !entry || !sl) return;
+
+    const riskAmt   = balance * riskPct / 100;
+    const slDist    = Math.abs(entry - sl);
+    const tp1Dist   = Math.abs(tp1 - entry);
+    const tp2Dist   = Math.abs(tp2 - entry);
+    const qty       = slDist > 0 ? riskAmt / slDist : 0;
+    const rr1       = slDist > 0 ? (tp1Dist / slDist) : 0;
+    const profit1   = qty * tp1Dist;
+    const profit2   = qty * tp2Dist;
+
+    let status, statusColor;
+    if (rr1 >= 3)      { status = '🥇 EXCELLENT (RR ≥ 1:3)'; statusColor = 'var(--green)'; }
+    else if (rr1 >= 2) { status = '✅ VALID (RR ≥ 1:2)';      statusColor = 'var(--gold-lt)'; }
+    else                { status = '❌ SKIP — RR terlalu rendah'; statusColor = 'var(--red)'; }
+
+    document.getElementById('res-risk').textContent    = '$' + riskAmt.toFixed(2);
+    document.getElementById('res-qty').textContent     = qty.toFixed(4);
+    document.getElementById('res-rr').textContent      = '1:' + rr1.toFixed(1);
+    document.getElementById('res-profit').textContent  = '$' + profit1.toFixed(2);
+    document.getElementById('res-sl-dist').textContent = slDist.toFixed(4) + ' pts';
+    document.getElementById('res-tp1-dist').textContent= tp1Dist.toFixed(4) + ' pts';
+    document.getElementById('res-tp2-dist').textContent= tp2Dist.toFixed(4) + ' pts';
+    document.getElementById('res-profit2').textContent = '$' + profit2.toFixed(2);
+
+    const statusEl = document.getElementById('res-status');
+    statusEl.textContent = status;
+    statusEl.style.color = statusColor;
+
+    document.getElementById('calcResult').classList.add('show');
+  }
+</script>
+</body>
+</html>
